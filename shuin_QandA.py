@@ -54,7 +54,7 @@ class ParserTable(HTMLParser):
 			self.data[-1].update({"title":data})
 			self.title = False
 
-# $B9q2q$N2q4|$rA*Br$9$k(B
+# 参照する国会会期のURLを指定 
 f = requests.get("http://www.shugiin.go.jp/internet/itdb_shitsumon.nsf/html/shitsumon/kaiji195_l.htm")
 
 parser = ParserTable()
@@ -62,13 +62,13 @@ parser.feed(f.text)
 parser.close()
 f.close()
 
-# PDF$B%Z!<%8$N%k!<%H$r@_Dj$9$k(B
+# PDFファイルのルート 
 root_pdf = "http://www.shugiin.go.jp/internet/"
 
-# $B<hF@$7$?(BPDF$B$N(BURL$B$r@dBP%Q%9$KJQ99$9$k$?$a$N@55,I=8=(B
+# 取得したPDFファイルの相対パスを絶対パスに修正するための正規表現
 url = re.compile("^../../../")
 
-# $B%3%^%s%I%i%$%s0z?t(B
+# コマンドライン引数の設定 
 arg_parser = ArgumentParser()
 arg_parser.add_argument("--number", "-n", help="specify question number",type=int)
 arg_parser.add_argument("--list","-l", action="store_true", help="list all the quiestions")
