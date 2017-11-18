@@ -76,8 +76,7 @@ dir_name = "shuin_downloads"
 arg_parser = ArgumentParser()
 arg_parser.add_argument("--number", "-n", help="specify question number",type=int)
 arg_parser.add_argument("--list","-l", action="store_true", help="list all the quiestions")
-arg_parser.add_argument("--download_q",  help="download question. please specify question number", type=int) 
-arg_parser.add_argument("--download_a",  help="download answer. please specify question number", type=int) 
+arg_parser.add_argument("--download", "-d", help="download q and a", type=int) 
 args = arg_parser.parse_args()
 
 if args.number:
@@ -104,10 +103,13 @@ if args.list:
 
 		print("")
 
-if args.download_q:
-	result = urllib.request.urlretrieve(root_pdf + url.sub("",parser.data[args.download_q]["slink"]), dir_name + "/q_" + str(args.download_q) + ".pdf")
-	
-if args.download_a:
-	result = urllib.request.urlretrieve(root_pdf + url.sub("",parser.data[args.download_a]["slink"]), dir_name + "/a_" + str(args.download_a) + ".pdf")
-	
+if args.download:
+	if parser.data[args.download-1]["slink"] != "not yet":
+		result = urllib.request.urlretrieve(root_pdf + url.sub("",parser.data[args.download-1]["slink"]), dir_name + "/q_" + str(args.download) + ".pdf")
+	if parser.data[args.download-1]["tlink"] != "not yet":
+		result = urllib.request.urlretrieve(root_pdf + url.sub("",parser.data[args.download-1]["tlink"]), dir_name + "/a_" + str(args.download) + ".pdf")
+	print(str(args.download) + parser.data[args.download-1]["title"])
+	print(root_pdf + url.sub("",parser.data[args.download-1]["slink"]))
+	print(root_pdf + url.sub("",parser.data[args.download-1]["tlink"]))
+
 
