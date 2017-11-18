@@ -4,6 +4,7 @@
 
 import requests
 import re
+import urllib
 from html.parser import HTMLParser
 from argparse import ArgumentParser
 
@@ -68,10 +69,15 @@ root_pdf = "http://www.shugiin.go.jp/internet/"
 # 取得したPDFファイルの相対パスを絶対パスに修正するための正規表現
 url = re.compile("^../../../")
 
+# PDFファイルダウンロード先
+dir_name = "shuin_downloads"
+
 # コマンドライン引数の設定 
 arg_parser = ArgumentParser()
 arg_parser.add_argument("--number", "-n", help="specify question number",type=int)
 arg_parser.add_argument("--list","-l", action="store_true", help="list all the quiestions")
+arg_parser.add_argument("--download_q",  help="download question. please specify question number", type=int) 
+arg_parser.add_argument("--download_a",  help="download answer. please specify question number", type=int) 
 args = arg_parser.parse_args()
 
 if args.number:
@@ -98,4 +104,10 @@ if args.list:
 
 		print("")
 
+if args.download_q:
+	result = urllib.request.urlretrieve(root_pdf + url.sub("",parser.data[args.download_q]["slink"]), dir_name + "/q_" + str(args.download_q) + ".pdf")
+	
+if args.download_a:
+	result = urllib.request.urlretrieve(root_pdf + url.sub("",parser.data[args.download_a]["slink"]), dir_name + "/a_" + str(args.download_a) + ".pdf")
+	
 
