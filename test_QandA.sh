@@ -18,7 +18,7 @@ if [ ${ARG_TYPE} == "shu" ]; then
 	if [ -f "${SHU_PDF_DIR}q_${ARG_QNUM}.pdf" ]; then
 		${PYTHON} ${PDF_CONV} -V "${SHU_PDF_DIR}q_${ARG_QNUM}.pdf" >> ${TXT}
 	fi
-	if [ -f "${SHU_PDF_DIR}a_${ARG_ARG_QNUM}.pdf" ]; then
+	if [ -f "${SHU_PDF_DIR}a_${ARG_QNUM}.pdf" ]; then
 		${PYTHON} ${PDF_CONV} -V "${SHU_PDF_DIR}a_${ARG_QNUM}.pdf" >> ${TXT}
 	fi
 
