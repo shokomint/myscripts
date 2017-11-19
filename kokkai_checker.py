@@ -1,13 +1,16 @@
 
-# 国会回次選択
-home_shuin = "http://kokkai.ndl.go.jp/SENTAKU/syugiin/195/mainb.html"
-home_sanin = "http://kokkai.ndl.go.jp/SENTAKU/sangiin/195/mainb.html"
-home_ryoin = ""
-root_shuin = "http://kokkai.ndl.go.jp/SENTAKU/syugiin/195/"
-root_sanin = "http://kokkai.ndl.go.jp/SENTAKU/sangiin/195/"
-root_ryoin = ""
+# ホムペの文字コード指定
+ENCODE = "sjis"
 
-file_committee = "/Users/shoko/Develop/myscripts/committee.json"
+# 国会回次選択
+HOME_SHUIN = "http://kokkai.ndl.go.jp/SENTAKU/syugiin/195/mainb.html"
+HOME_SANIN = "http://kokkai.ndl.go.jp/SENTAKU/sangiin/195/mainb.html"
+HOME_RYOIN = ""
+ROOT_SHUIN = "http://kokkai.ndl.go.jp/SENTAKU/syugiin/195/"
+ROOT_SANIN = "http://kokkai.ndl.go.jp/SENTAKU/sangiin/195/"
+ROOT_RYOIN = ""
+
+FILE_COMMITTEE = "/Users/shoko/Develop/myscripts/committee.json"
 
 import requests
 import re
@@ -44,30 +47,34 @@ args = arg_parser.parse_args()
 
 if args.init:
 
-	if home_shuin != "":
-		shuin_url = requests.get(home_shuin)
+	if HOME_SHUIN != "":
+		shuin_url = requests.get(HOME_SHUIN)
+		shuin_url.encoding = ENCODE 
 		shuin_list = CommitteeList()
 		shuin_list.feed(shuin_url.text)
 		shuin_list.close()
 		shuin_url.close()
 	
-	if home_sanin != "":
-		sanin_url = requests.get(home_sanin)
+	if HOME_SANIN != "":
+		sanin_url = requests.get(HOME_SANIN)
+		sanin_url.encoding = ENCODE 
 		sanin_list = CommitteeList()
 		sanin_list.feed(sanin_url.text)
 		sanin_list.close()
 		sanin_url.close()
 
-	if home_ryoin != "":
-		ryoin_url = requests.get(home_ryoin)
+	if HOME_RYOIN != "":
+		ryoin_url = requests.get(HOME_RYOIN)
+		ryoin_url.encoding = ENCODE 
+		sanin_list = CommitteeList()
 		ryoin_list = CommitteeList()
 		ryoin_list.feed(sanin_url.text)
 		ryoin_list.close()
 		ryoin_url.close()
 
-	f = codecs.open(file_committee, "w", "utf-8")
+	f = codecs.open(FILE_COMMITTEE, "w", "utf-8")
 
-	if home_ryoin != "":
+	if HOME_RYOIN != "":
 		json.dump([{"shuin": shuin_list.clist},{"sanin": sanin_list.clist}, {"ryoin": ryoin_list.clist}],f, ensure_ascii=False)
 	else:
 		json.dump([{"shuin": shuin_list.clist},{"sanin": sanin_list.clist}],f, ensure_ascii=False)

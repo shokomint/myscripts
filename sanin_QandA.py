@@ -1,7 +1,6 @@
 # 参考 
 # https://qiita.com/Taillook/items/a0f2c59d8e17381fc835
 # https://media.accel-brain.com/web-pdf-abstract-academic-papers/
-# 質問主意書のタイトルは文字化けします。
 
 import requests
 import re
@@ -49,7 +48,7 @@ class ParserTable(HTMLParser):
 
 # 参照する国会会期のURLを指定 
 f = requests.get("http://www.sangiin.go.jp/japanese/joho1/kousei/syuisyo/195/syuisyo.htm")
-
+f.encoding = "utf-8"
 parser = ParserTable()
 parser.feed(f.text)
 parser.close()
