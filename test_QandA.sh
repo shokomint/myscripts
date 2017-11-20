@@ -26,7 +26,6 @@ elif [ ${ARG_TYPE} = "san" ]; then
 	${PYTHON} ${SAN_PDF_GET} -d ${ARG_QNUM} #> ${TXT} 
 	
 	if [ -f "${SAN_PDF_DIR}q_${ARG_QNUM}.pdf" ]; then
-		echo "${SAN_PDF_DIR}q_${ARG_QNUM}.pdf"
 		${PYTHON} ${PDF_CONV} -V "${SAN_PDF_DIR}q_${ARG_QNUM}.pdf" #>> ${TXT}
 	fi
 	if [ -f "${SAN_PDF_DIR}a_${ARG_ARG_QNUM}.pdf" ]; then

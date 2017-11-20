@@ -7,6 +7,7 @@ import re
 import urllib
 from html.parser import HTMLParser
 from argparse import ArgumentParser
+from kokkailib import LogDone,UndoneList
 
 class ParserTable(HTMLParser):
 	def __init__(self):
@@ -46,6 +47,15 @@ class ParserTable(HTMLParser):
 			self.syup = True
 			self.toup = True
 
+	def get_slink(self, number):
+		return(self.data[number]["syup"])
+
+	def get_tlink(self, number):
+		return(self.data[number]["toup"])
+
+	def get_len(self):
+		return(len(self.data))
+
 # 参照する国会会期のURLを指定 
 f = requests.get("http://www.sangiin.go.jp/japanese/joho1/kousei/syuisyo/195/syuisyo.htm")
 f.encoding = "utf-8"
@@ -65,14 +75,17 @@ arg_parser = ArgumentParser()
 arg_parser.add_argument("--number", "-n", help="specify question number",type=int)
 arg_parser.add_argument("--list","-l", action="store_true", help="list all the quiestions")
 arg_parser.add_argument("--download", "-d", help="download q and a", type=int) 
+arg_parser.add_argument("--done_Q","-Q",help="input finised question")
+arg_parser.add_argument("--done_A","-A",help="input finised answer")
+arg_parser.add_argument("--ulist","-ul", action="store_true",help="list undone list")
 args = arg_parser.parse_args()
 
 if args.number:
 	q = args.number - 1
-	if q >= 0 and q < len(parser.data):
-		print(parser.data[q]["title"])
-		print(root_pdf + parser.data[q]["syup"])
-		print(root_pdf + parser.data[q]["toup"])
+	if q >= 0 and q < parser.get_len():
+		print(parser.get_title(q))
+		print(root_pdf + parser.get_slink(q))
+		print(root_pdf + parser.get_tlink(q))
 
 if args.list:
 	i = 0
@@ -91,7 +104,7 @@ if args.list:
 
 		print("")
 
-if args.download:
+elif args.download:
 	if parser.data[args.download-1]["syup"] != "not yet":
 		result = urllib.request.urlretrieve(root_pdf + parser.data[args.download-1]["syup"], dir_name + "/q_" + str(args.download) + ".pdf")
 	if parser.data[args.download-1]["toup"] != "not yet":
@@ -100,4 +113,13 @@ if args.download:
 	print(root_pdf + parser.data[args.download-1]["syup"])
 	print(root_pdf + parser.data[args.download-1]["toup"])
 
+elif args.done_Q:
+	LogDone("sanin_q",args.done_Q)
 
+elif args.done_A:
+	LogDone("sanin_a",args.done_A)
+
+
+elif args.ulist:
+	UndoneList("sanin_q",parser)
+	UndoneList("sanin_a",parser)
