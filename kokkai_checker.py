@@ -1,5 +1,3 @@
-
-# ホムペの文字コード指定
 ENCODE = "sjis"
 
 # 国会回次選択
@@ -23,7 +21,7 @@ import codecs
 class CommitteeList(HTMLParser):
 	def __init__(self):
 		HTMLParser.__init__(self)
-		self.clist = []
+		self.clist = [] 
 		self.clist_flg = False
 	
 	def handle_starttag(self, tag, attrs):
@@ -39,46 +37,55 @@ class CommitteeList(HTMLParser):
 			self.clist[-1].update({"name":data})
 			self.clist_flg = False
 
+	def print(self):
+		print(self.clist)
+			
+class CommitteeFile():
+	def __init__(self, ktype, homepage, json_data):
+		if homepage != "":
+			url =requests.get(homepage)
+			url.encoding = ENCODE
+			klist = CommitteeList()
+			klist.feed(url.text)
+			klist.close()
+			url.close()
+			for i in range(len(klist.clist)):
+				klist.clist[i].update({"kaiki":[]})
+				json_data.update({ktype:klist.clist})
+
 
 # コマンドライン引数を設定
 arg_parser = ArgumentParser()
 arg_parser.add_argument("--init", action="store_true", help="obtain committee lists")
+arg_parser.add_argument("--done", help="obtain committee lists", type=str)
+arg_parser.add_argument("-s", help="specify committee name",type=str)
+arg_parser.add_argument("-n", help="specify kaiki",type=int)
 args = arg_parser.parse_args()
 
 if args.init:
+	json_data = {} 
+	CommitteeFile("shuin", HOME_SHUIN, json_data)
+	CommitteeFile("sanin", HOME_SANIN, json_data)
+	CommitteeFile("ryoin", HOME_RYOIN, json_data)
+	f = codecs.open(FILE_COMMITTEE, "w", "utf-8")
+	json.dump(json_data,f, ensure_ascii=False)
+	f.close()
 
-	if HOME_SHUIN != "":
-		shuin_url = requests.get(HOME_SHUIN)
-		shuin_url.encoding = ENCODE 
-		shuin_list = CommitteeList()
-		shuin_list.feed(shuin_url.text)
-		shuin_list.close()
-		shuin_url.close()
-	
-	if HOME_SANIN != "":
-		sanin_url = requests.get(HOME_SANIN)
-		sanin_url.encoding = ENCODE 
-		sanin_list = CommitteeList()
-		sanin_list.feed(sanin_url.text)
-		sanin_list.close()
-		sanin_url.close()
+elif args.done in ["shuin","sanin","ryoin"] and args.s and args.n:
+	f = codecs.open(FILE_COMMITTEE, "r", "utf-8")
+	json_data = json.load(f)
+	f.close()
 
-	if HOME_RYOIN != "":
-		ryoin_url = requests.get(HOME_RYOIN)
-		ryoin_url.encoding = ENCODE 
-		sanin_list = CommitteeList()
-		ryoin_list = CommitteeList()
-		ryoin_list.feed(sanin_url.text)
-		ryoin_list.close()
-		ryoin_url.close()
+	for i in range(len(json_data[args.done])):
+
+		if json_data[args.done][i]["name"] == args.s:
+			if  args.n not in json_data[args.done][i]["kaiki"]:
+				json_data[args.done][i]["kaiki"].append(args.n)
+			else:
+				print("it's already logged.")
 
 	f = codecs.open(FILE_COMMITTEE, "w", "utf-8")
-
-	if HOME_RYOIN != "":
-		json.dump([{"shuin": shuin_list.clist},{"sanin": sanin_list.clist}, {"ryoin": ryoin_list.clist}],f, ensure_ascii=False)
-	else:
-		json.dump([{"shuin": shuin_list.clist},{"sanin": sanin_list.clist}],f, ensure_ascii=False)
-	
-
+	json.dump(json_data,f, ensure_ascii=False)
 	f.close()
+
 
