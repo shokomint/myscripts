@@ -14,8 +14,8 @@ class ParserTable(HTMLParser):
 		HTMLParser.__init__(self)
 		self.data = []
 		self.title = False
-		self.syup = False
-		self.toup = False
+		self.shuh = False
+		self.touh = False
 	
 	def handle_starttag(self, tag, attrs):
 		attrs = dict(attrs)
@@ -24,34 +24,34 @@ class ParserTable(HTMLParser):
 			self.title = True
 			self.data.append({})
 
-		elif tag == "a" and re.match("syup", attrs["href"]):
-			self.data[-1].update({"syup":attrs["href"]})
-			self.syup = False
+		elif tag == "a" and re.match("shuh", attrs["href"]):
+			self.data[-1].update({"shuh":attrs["href"]})
+			self.shuh = False
 
-		elif self.syup == True:
-			self.data[-1].update({"syup":"not yet"})
-			self.syup = False
+		elif self.shuh == True:
+			self.data[-1].update({"shuh":"not yet"})
+			self.shuh = False
 
-		elif tag == "a" and re.match("toup", attrs["href"]):
-			self.data[-1].update({"toup":attrs["href"]})
-			self.toup = False
+		elif tag == "a" and re.match("touh", attrs["href"]):
+			self.data[-1].update({"touh":attrs["href"]})
+			self.touh = False
 
-		elif self.toup == True:
-			self.data[-1].update({"toup":"not yet"})
-			self.toup = False
+		elif self.touh == True:
+			self.data[-1].update({"touh":"not yet"})
+			self.touh = False
 
 	def handle_data(self, data):
 		if self.title == True:
 			self.data[-1].update({"title":data})
 			self.title = False
-			self.syup = True
-			self.toup = True
+			self.shuh = True
+			self.touh = True
 
 	def get_slink(self, number):
-		return(self.data[number]["syup"])
+		return(self.data[number]["shuh"])
 
 	def get_tlink(self, number):
-		return(self.data[number]["toup"])
+		return(self.data[number]["touh"])
 
 	def get_len(self):
 		return(len(self.data))
@@ -92,26 +92,26 @@ if args.list:
 	for d in parser.data:
 		print(d["title"])
 
-		if d["syup"] != "not yet":
-			print(root_pdf + d["syup"])
+		if d["shuh"] != "not yet":
+			print(root_pdf + d["shuh"])
 		else:
-			print(d["syup"])
+			print(d["shuh"])
 	
-		if d["toup"] != "not yet":
-			print(root_pdf + d["toup"])
+		if d["touh"] != "not yet":
+			print(root_pdf + d["touh"])
 		else:
-			print(d["toup"])
+			print(d["touh"])
 
 		print("")
 
 elif args.download:
-	if parser.data[args.download-1]["syup"] != "not yet":
-		result = urllib.request.urlretrieve(root_pdf + parser.data[args.download-1]["syup"], dir_name + "/q_" + str(args.download) + ".pdf")
-	if parser.data[args.download-1]["toup"] != "not yet":
-		result = urllib.request.urlretrieve(root_pdf + parser.data[args.download-1]["toup"], dir_name + "/a_" + str(args.download) + ".pdf")
+	if parser.data[args.download-1]["shuh"] != "not yet":
+		result = urllib.request.urlretrieve(root_pdf + parser.data[args.download-1]["shuh"], dir_name + "/q_" + str(args.download) + ".pdf")
+	if parser.data[args.download-1]["touh"] != "not yet":
+		result = urllib.request.urlretrieve(root_pdf + parser.data[args.download-1]["touh"], dir_name + "/a_" + str(args.download) + ".pdf")
 	print(parser.data[args.download-1]["title"])
-	print(root_pdf + parser.data[args.download-1]["syup"])
-	print(root_pdf + parser.data[args.download-1]["toup"])
+	print(root_pdf + parser.data[args.download-1]["shuh"])
+	print(root_pdf + parser.data[args.download-1]["touh"])
 
 elif args.done_Q:
 	LogDone("sanin_q",args.done_Q)
