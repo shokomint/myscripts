@@ -23,15 +23,8 @@ if [ ${ARG_TYPE} == "shu" ]; then
 	fi
 
 elif [ ${ARG_TYPE} = "san" ]; then
-	${PYTHON} ${SAN_PDF_GET} -d ${ARG_QNUM} #> ${TXT} 
+	${PYTHON} ${SAN_PDF_GET} -n ${ARG_QNUM} 
 	
-	if [ -f "${SAN_PDF_DIR}q_${ARG_QNUM}.pdf" ]; then
-		${PYTHON} ${PDF_CONV} -V "${SAN_PDF_DIR}q_${ARG_QNUM}.pdf" #>> ${TXT}
-	fi
-	if [ -f "${SAN_PDF_DIR}a_${ARG_ARG_QNUM}.pdf" ]; then
-		${PYTHON} ${PDF_CONV} -V "${SAN_PDF_DIR}a_${ARG_QNUM}.pdf" #>> ${TXT}
-	fi
-
 else
 	echo "error"
 fi

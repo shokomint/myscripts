@@ -14,7 +14,7 @@ class ParserTable(HTMLParser):
 		HTMLParser.__init__(self)
 		self.data = []
 		self.title = False
-		self.shuh = False
+		self.syuh = False
 		self.touh = False
 	
 	def handle_starttag(self, tag, attrs):
@@ -24,13 +24,13 @@ class ParserTable(HTMLParser):
 			self.title = True
 			self.data.append({})
 
-		elif tag == "a" and re.match("shuh", attrs["href"]):
-			self.data[-1].update({"shuh":attrs["href"]})
-			self.shuh = False
+		elif tag == "a" and re.match("syuh", attrs["href"]):
+			self.data[-1].update({"syuh":attrs["href"]})
+			self.syuh = False
 
-		elif self.shuh == True:
-			self.data[-1].update({"shuh":"not yet"})
-			self.shuh = False
+		elif self.syuh == True:
+			self.data[-1].update({"syuh":"not yet"})
+			self.syuh = False
 
 		elif tag == "a" and re.match("touh", attrs["href"]):
 			self.data[-1].update({"touh":attrs["href"]})
@@ -44,11 +44,14 @@ class ParserTable(HTMLParser):
 		if self.title == True:
 			self.data[-1].update({"title":data})
 			self.title = False
-			self.shuh = True
+			self.syuh = True
 			self.touh = True
 
+	def get_title(self, number):
+		return(self.data[number]["title"])
+
 	def get_slink(self, number):
-		return(self.data[number]["shuh"])
+		return(self.data[number]["syuh"])
 
 	def get_tlink(self, number):
 		return(self.data[number]["touh"])
@@ -64,10 +67,10 @@ parser.feed(f.text)
 parser.close()
 f.close()
 
-# PDFファイルのルート 
-root_pdf = "http://www.sangiin.go.jp/japanese/joho1/kousei/syuisyo/195/"
+# HTMLファイルのルート 
+root_html = "http://www.sangiin.go.jp/japanese/joho1/kousei/syuisyo/195/"
 
-# PDFファイルダウンロード先
+# HTMLファイルダウンロード先
 dir_name = "sanin_downloads"
 
 # コマンドライン引数の設定 
@@ -84,34 +87,34 @@ if args.number:
 	q = args.number - 1
 	if q >= 0 and q < parser.get_len():
 		print(parser.get_title(q))
-		print(root_pdf + parser.get_slink(q))
-		print(root_pdf + parser.get_tlink(q))
+		print(root_html + parser.get_slink(q))
+		print(root_html + parser.get_tlink(q))
 
 if args.list:
 	i = 0
 	for d in parser.data:
 		print(d["title"])
 
-		if d["shuh"] != "not yet":
-			print(root_pdf + d["shuh"])
+		if d["syuh"] != "not yet":
+			print(root_html + d["syuh"])
 		else:
-			print(d["shuh"])
+			print(d["syuh"])
 	
 		if d["touh"] != "not yet":
-			print(root_pdf + d["touh"])
+			print(root_html + d["touh"])
 		else:
 			print(d["touh"])
 
 		print("")
 
 elif args.download:
-	if parser.data[args.download-1]["shuh"] != "not yet":
-		result = urllib.request.urlretrieve(root_pdf + parser.data[args.download-1]["shuh"], dir_name + "/q_" + str(args.download) + ".pdf")
+	if parser.data[args.download-1]["syuh"] != "not yet":
+		result = urllib.request.urlretrieve(root_html + parser.data[args.download-1]["syuh"], dir_name + "/q_" + str(args.download) + ".htm")
 	if parser.data[args.download-1]["touh"] != "not yet":
-		result = urllib.request.urlretrieve(root_pdf + parser.data[args.download-1]["touh"], dir_name + "/a_" + str(args.download) + ".pdf")
+		result = urllib.request.urlretrieve(root_html + parser.data[args.download-1]["touh"], dir_name + "/a_" + str(args.download) + ".htm")
 	print(parser.data[args.download-1]["title"])
-	print(root_pdf + parser.data[args.download-1]["shuh"])
-	print(root_pdf + parser.data[args.download-1]["touh"])
+	print(root_html + parser.data[args.download-1]["syuh"])
+	print(root_html + parser.data[args.download-1]["touh"])
 
 elif args.done_Q:
 	LogDone("sanin_q",args.done_Q)
