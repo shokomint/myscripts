@@ -16,3 +16,11 @@
 #
 # 参院バージョン
 # python3 ./sanin_QandA.py -ul
+
+# 国会の議事録未要約一覧を表示する。
+# python3 ./kokkai_checker.py -ul
+#
+# 要約したら、committee.jsonに議事番号（kaiki）を記録する。
+# なお、議事番号は降順に並べること。
+# 議事番号をスキップして記録はできない。
+# 
