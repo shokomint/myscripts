@@ -31,3 +31,8 @@ class UndoneList():
 				elif key_qa in ("shuin_a","sanin_a") and data.get_tlink(i) != "not yet":
 					print(key_qa + str(i+1))
 
+class ConvText():
+    def __init__(self, org):
+        self.text = org.tranlate({
+            })
+        

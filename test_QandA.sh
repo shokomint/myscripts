@@ -7,6 +7,7 @@ SHU_PDF_DIR="/Users/shoko/Develop/myscripts/shuin_downloads/"
 SAN_PDF_DIR="/Users/shoko/Develop/myscripts/sanin_downloads/"
 
 PDF_CONV="/Users/shoko/Develop/pdfminer.six/tools/pdf2txt.py"
+TXT_CONV="/Users/shoko/Develop/myscripts/conv_QandA.py"
 TXT="/Users/shoko/Downloads/q_and_a.txt"
 
 ARG_TYPE=$1
@@ -21,6 +22,8 @@ if [ ${ARG_TYPE} == "shu" ]; then
 	if [ -f "${SHU_PDF_DIR}a_${ARG_QNUM}.pdf" ]; then
 		${PYTHON} ${PDF_CONV} -V "${SHU_PDF_DIR}a_${ARG_QNUM}.pdf" >> ${TXT}
 	fi
+
+    ${PYTHON} ${TXT_CONV} -f ${TXT} 
 
 elif [ ${ARG_TYPE} = "san" ]; then
 	${PYTHON} ${SAN_PDF_GET} -n ${ARG_QNUM} 
