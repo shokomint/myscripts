@@ -105,20 +105,19 @@ class MinutesPage(HTMLParser):
             self.data[-1].update({"number":data})
             self.flg_number = False
 
+
 class PrintMinutesList():
     def __init__(self, ktype, root_url, done_list, uplist):
 
         x = 0
         for key in uplist:
-
             if len(uplist[key]) > len(done_list[ktype][x]["kaiki"]):
-                    i = len(done_list[ktype][x]["kaiki"]) 
-
-                    while i < len(uplist[key]):
-                        print(key + uplist[key][i]["number"])
-                        print(root_url+re.search("\d+",done_list[ktype][x]["url"]).group()+re.search("/\d+\w+.html",uplist[key][i]["url"]).group())
-                        print("")
-                        i += 1
+                i = 0 
+                while i < len(uplist[key]) - len(done_list[ktype][x]["kaiki"]):
+                    print(key + uplist[key][i]["number"])
+                    print(root_url+re.search("\d+",done_list[ktype][x]["url"]).group()+re.search("/\d+\w+.html",uplist[key][i]["url"]).group())
+                    print("")
+                    i += 1
             x += 1
 
 # コマンドライン引数を設定
@@ -176,4 +175,4 @@ elif args.undone:
         ryo = MinutesList("ryoin",ROOT_RYOIN,json_done)
         print("ryoin")
         PrintMinutesList("ryoin",ROOT_RYOIN,json_done,ryo.uplist)
-
+ 
