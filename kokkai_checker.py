@@ -54,21 +54,27 @@ class CommitteeFile():
 				json_data.update({ktype:klist.clist})
 
 
-# 各委員会のページへアクセスし、既にアップされてる議事録番号を取得する。
 class MinutesList():
 	def __init__(self, ktype, root_url, json_home):
 
-		self.uplist = {}
+		self.uplist ={} 
 		for i in range(len(json_home[ktype])):
+
+			# 委員会ページ
 			cnumber = re.search("\d+",json_home[ktype][i]["url"]).group()
 			homepage = root_url + cnumber + "/mainb.html"
 			url =requests.get(homepage)
 			url.encoding = ENCODE
 			mpage =  MinutesPage()
 			mpage.feed(url.text)
+
+		        # 委員会ページにアップされてる議事録集	
 			self.uplist.update({json_home[ktype][i]["name"]:mpage.data})
-		
-# {"shuin": ["本会議":[1,2,3...],...],...}
+
+	def print(self):
+		print(self.uplist)
+
+# 委員会ページを読み出し、アップされてる議事録を取得する。
 class MinutesPage(HTMLParser):
 	def __init__(self):
 		HTMLParser.__init__(self)
@@ -78,7 +84,8 @@ class MinutesPage(HTMLParser):
 		
 	def handle_starttag(self, tag, attrs):
 		attrs = dict(attrs)
-		if tag == "a" and attrs["target"] == "MAIN" and self.flg_date == False and self.flg_number == False:
+		if tag == "a" and re.search("pdf",attrs["href"]) == None and self.flg_date == False and self.flg_number == False:
+			
 			self.data.append({})
 			self.data[-1].update({"url":attrs["href"]})
 			self.flg_date = True
@@ -144,13 +151,22 @@ elif args.undone:
 	if HOME_SHUIN != "":
 		shu = MinutesList("shuin",ROOT_SHUIN,json_home)
 
+
+		for key in shu.uplist:
+			for i in range(len(shu.uplist[key])):
+				print(key+":"+shu.uplist[key][i]["number"])
+
+				for x in range(len(json_done["shuin"])):
+					if key == json_done["shuin"][x]["name"]:
+					 	for y in range(len(json_done["shuin"][x]["kaiki"])):
+							if re.search(str(json_done["shuin"][x]["kaiki"][y]),shu.uplist[key][i]["number"]) != None:
+								print("done"+key+shu.uplist[key][i]["number"])
+
 	if HOME_SANIN != "":
 		san = MinutesList("sanin",ROOT_SANIN,json_home)
 
 	if HOME_RYOIN != "":
-		ryo = MinutesList("ryoin",ROOTE_RYOIN,json_home)
+		ryo = MinutesList("ryoin",ROOT_RYOIN,json_home)
 	
-
-	print({"shuin":shu.uplist, "sanin":san.uplist})	
 
 
