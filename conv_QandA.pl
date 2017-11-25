@@ -1,22 +1,27 @@
 #!/usr/bin/perl
-#
+use utf8;
+binmode STDIN,  ":utf8";
+binmode STDOUT, ":utf8";
 #open(FH,$1);
-@data = <FH>;
+#@data = <FH>;
 #close(FH);
 
 #open(FH,"> $ARGV[0]");
 
-foreach my $d @data {
-
+#@data = ("aiueo","kakikkuk3ko");
+@data = ("あいうえお三十一日、平成二十年十二月一日","これはどう");
+foreach my $d (@data) {
     
-   $tmp = &conv2seireki()     
+    $tmp = $d;
+    $tmp = &convTitleNumber($tmp);
+    while($tmp =~ /[〇一二三四五六七八九十百]+[条|項|月|年|日]/) {
+       $tmp = &conv2seireki($tmp);
+       $tmp = &convRuleNumber($tmp);
+       
+    }
+    print "$tmp\n";
 }
-$str = &conv2seireki("一 百二十一条一項あ一日いえうおいうえお");
-$str = &convTitleNumber($str);
-$str = &convRuleNumber($str);
-print $str;
-#print $str;
-#print "\n";
+
 
 #close(FH);
 
@@ -57,49 +62,77 @@ sub convTitleNumber {
 }
 sub conv2seireki {
     my $str = @_[0];
-    $str =~ /(昭和|平成)([〇一二三四五六七八九十]+)年/;
-    my $type = $1;
-    my $year = &conv2number($2);
+    my $type = "";
+    my $year = 0;
+    my $month = 0;
+    my $day = 0;
+    
+    if($str =~ /(..)([〇一二三四五六七八九十]+)年([〇一二三四五六七八九十]+)月([〇一二三四五六七八九十]+)日/) {
+         $type =  $1;
+         $year = &conv2number($2);
+         $year = &convYear($type,$year);
+         $month = &conv2number($3);
+         $day = &conv2number($4);
+         if($type != "昭和" && $type != "平成") {
+            $str =~ s/[〇一二三四五六七八九十]+年[〇一二三四五六七八九十]+月[〇一二三四五六七八九十]+日/$year\/$month\/$day/;
+        } else {
+            $str =~ s/..[〇一二三四五六七八九十]+年[〇一二三四五六七八九十]+月[〇一二三四五六七八九十]+日/$year\/$month\/$day/;
+        }
+        return($str);
+
+    }
+
+    if($str =~ /([〇一二三四五六七八九十]+)月([〇一二三四五六七八九十]+)日/) {
+        $month = &conv2number($1);
+        $day = &conv2number($2);
+        $str =~ s/[〇一二三四五六七八九十]+月[〇一二三四五六七八九十]+日/$month\/$day/;
+        return($str);
+    }
+
+    if($str =~ /(..)([〇一二三四五六七八九十]+)年/) {
+        $type = $1;
+        $year = &conv2number($2);
+        $year = &convYear($type,$year);
+        if($type != "昭和" && $type != "平成") {
+            $str =~ s/[〇一二三四五六七八九十]+年/$year年/;
+        } else {
+            $str =~ s/..[〇一二三四五六七八九十]+年/$year年/;
+        }
+        return($str);
+    }
+
+    if($str =~ /([〇一二三四五六七八九十]+)月/) {
+        $month = &conv2number($1);
+        $str =~ s/[〇一二三四五六七八九十]+月/$month月/;
+        return($str);
+    }
+
+    if($str =~  /([〇一二三四五六七八九十]+)日/) {
+        $day = &conv2number($1);
+        print "$str\n";
+        $str =~ s/[〇一二三四五六七八九十]+日/$day日/;
+        print $day;
+        print "$str\n";
+        return($str);
+    }
+
+    retrun($str);
+}
+
+sub convYear {
+    my $type = @_[0];
+    my $year = @_[1];
 
     if($type eq "昭和") {
         $year = $year + 1925;
+
     } elsif($type eq "平成") {
-        $year = $year + 1988;
-    }
+       $year = $year + 1988;
+    } 
 
-    if($year == 0) {
-        $str =~/([〇一二三四五六七八九十]+)年/;
-        $year = &conv2number($1);
-    }
-
-    $str =~ /([〇一二三四五六七八九十]+)月/;
-    my $month = &conv2number($1);
-
-    $str =~/([一二三四五六七八九十]+)日/;
-    my $day = &conv2number($1);
-
-    if($year > 0 && $month > 0) {
-        $str =~ s/(昭和|平成)[〇一二三四五六七八九十]+年/$year\//;
-        $str =~ s/[〇一二三四五六七八九十]+年/$year\//;
-        $str =~ s/[〇一二三四五六七八九十]+月/$month\//;
-        $str =~ s/[〇一二三四五六七八九十]+日/$day/;
-    } elsif($month > 0 && $day > 0) {
-        $str =~ s/[〇一二三四五六七八九十]+月/$month\//;
-        $str =~ s/[〇一二三四五六七八九十]+日/$day/;
-    }
-
-    if($year > 0 && $month == 0 && $day == 0) {
-        $str =~ s/[〇一二三四五六七八九十]+年/$year年/;
-    } elsif($month > 0 && $year == 0 && $day == 0) {
-        $str =~ s/[〇一二三四五六七八九十]+月/$month月/;
-    } elsif($day > 0 && $year == 0 && $month == 0) {
-        $str =~ s/[〇一二三四五六七八九十]+日/$day日/;
-    }
-
-    $str =~ s/\/(\D+)/$1/;
-
-    return $str;
+    return($year);
 }
+ 
 
 sub conv2number {
     my $x = @_[0];
