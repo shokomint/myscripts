@@ -8,17 +8,20 @@ binmode STDIN,  ":utf8";
 binmode STDOUT, ":utf8";
 binmode STDERR, ":utf8";
 use Data::Dumper;
-#use Test::More 'no_plan';
+use Test::More 'no_plan';
 
 if($ARGV[0] eq "--test") {
     my @data = (
         {"test"=>"百十五","expected"=>115},
         {"test"=>"二〇十七","expected"=>2017},
+        {"test"=>"二〇一七","expected"=>2017},
         {"test"=>"二〇〇七","expected"=>2007},
         {"test"=>"二百十八","expected"=>218},
+        {"test"=>"二百二十八","expected"=>228},
+        {"test"=>"百二十八","expected"=>128},
     );
 
-    foreach $d (@data) {
+    foreach my $d (@data) {
         is(&conv2number($d->{test}),$d->{expected},encode("utf-8",$d->{test}));
     }
 
@@ -171,12 +174,12 @@ sub conv2number {
     $x =~ s/^(百)([一二三四五六七八九十]+)/1${2}/;
     $x =~ s/([一二三四五六七八九]+)(百)$/${1}00/;
     $x =~ s/([一二三四五六七八九]+)(百)([一二三四五六七八九]+)/${1}0${3}/;
-    $x =~ s/([一二三四五六七八九]+)(百)(十[一二三四五六七八九]+)/${1}${3}/;
+    $x =~ s/([一二三四五六七八九]+)(百)([一二三四五六七八九十]+)/${1}${3}/;
     $x =~ s/^(百)$/100/;
 
     $x =~ s/^(十)([一二三四五六七八九]+)/1$2/;
     $x =~ s/([一二三四五六七八九]+)十$/${1}0/;
-    $x =~ s/([一二三四五六七八九]+)(十)([一二三四五六七八九]+)/${1}${3}/;
+    $x =~ s/([一二三四五六七八九]+)(十)([一二三四五六七八九]+)/${1}1${3}/;
     $x =~ s/^十$/10/;
 
     $x =~ s/十/1/;
