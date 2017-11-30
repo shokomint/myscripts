@@ -22,6 +22,8 @@ if args.file:
     })
 
     src = src.replace("(cid:7923)","っ")
+    src = src.replace("(cid:7926)","ょ")
+    src = src.replace("(cid:7938)","ヵ")
     src = src.replace("(cid:7939)","ヶ")
     src = src.replace("(cid:7891)","ー")
     src = src.replace("(cid:7928)","ァ")
@@ -33,6 +35,7 @@ if args.file:
     src = src.replace("(cid:7936)","ョ")
     src = src.replace("(cid:7933)","ッ")
     src = src.replace("(cid:7722)","遡")
+    src = src.replace("(cid:7767)","灘")
     src = src.replace("(cid:7970)","餐")
     src = src.replace("(cid:7972)","煽")
     src = src.replace("(cid:7894)","〜")
