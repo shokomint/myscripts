@@ -35,7 +35,9 @@ if($ARGV[0] eq "--test") {
         {"test"=>"平成二十九年七月二十九日","expected"=>"2017/7/29"},
         {"test"=>"平成二十 九年七月二十九日","expected"=>"平成二十 9/7/29"},
         {"test"=>"九年七月二十九日","expected"=>"9/7/29"},
-        {"test"=>"二〇〇九年七月二十九日","expected"=>"2009/7/29"}
+        {"test"=>"二〇〇九年七月二十九日","expected"=>"2009/7/29"},
+        {"test"=>"一九五一年七月二十九日","expected"=>"1951/7/29"},
+        {"test"=>"これはテストです。一九五一年七月二十九日","expected"=>"これはテストです。1951/7/29"},
     );
 
     foreach my $d (@japy) {
@@ -122,16 +124,19 @@ sub conv2seireki {
     my $day = 0;
     
     if($str =~ /(..)([〇一二三四五六七八九十]+)年([〇一二三四五六七八九十]+)月([〇一二三四五六七八九十]+)日/) {
-         $type =  $1;
+         $type = $1;
+         $year = $2; 
+         $month = $3;
+         $day = $4;
          if($type ne "昭和" && $type ne "平成") {
-             $year = $1.$2;
-         } else {
-             $year = $2;
+             if($type =~ /^[〇一二三四五六七八九十]+$/) {
+                $year = $type.$year;
+             } 
          }
          $year = &conv2number($year);
          $year = &convYear($type,$year);
-         $month = &conv2number($3);
-         $day = &conv2number($4);
+         $month = &conv2number($month);
+         $day = &conv2number($day);
          if($type eq "昭和" || $type eq "平成") {
             $str =~ s/(..)[〇一二三四五六七八九十]+年[〇一二三四五六七八九十]+月[〇一二三四五六七八九十]+日/${year}\/${month}\/${day}/;
         } else {
@@ -139,6 +144,14 @@ sub conv2seireki {
         }
         return($str);
 
+    }
+
+    if($str =~ /([〇一二三四五六七八九十]+)年([〇一二三四五六七八九十]+)月([〇一二三四五六七八九十]+)日/) {
+         $year = &conv2number($1);
+         $month = &conv2number($2);
+         $day = &conv2number($3);
+         $str =~ s/[〇一二三四五六七八九十]+年[〇一二三四五六七八九十]+月[〇一二三四五六七八九十]+日/${year}\/${month}\/${day}/;
+        return($str);
     }
 
     if($str =~ /([〇一二三四五六七八九十]+)月([〇一二三四五六七八九十]+)日/) {
@@ -150,8 +163,11 @@ sub conv2seireki {
 
     if($str =~ /(..)([〇一二三四五六七八九十]+)年/) {
         $type = $1;
+        $year = $2;
         if($type ne "昭和" && $type ne "平成") {
-            $year = $1.$2;
+            if($type =~ /^\d$/) {
+                $year = $1.$2;
+            } 
         } else {
             $year = $2;
         }
