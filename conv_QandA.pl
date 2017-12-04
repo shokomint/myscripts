@@ -24,10 +24,22 @@ if($ARGV[0] eq "--test") {
         {"test"=>"二十一","expected"=>21},
         {"test"=>"二百一","expected"=>201},
         {"test"=>"二〇一","expected"=>201},
+        {"test"=>"九","expected"=>9},
     );
 
     foreach my $d (@data) {
         is(&conv2number($d->{test}),$d->{expected},encode("utf-8",$d->{test}));
+    }
+
+    my @japy = (
+        {"test"=>"平成二十九年七月二十九日","expected"=>"2017/7/29"},
+        {"test"=>"平成二十 九年七月二十九日","expected"=>"平成二十 9/7/29"},
+        {"test"=>"九年七月二十九日","expected"=>"9/7/29"},
+        {"test"=>"二〇〇九年七月二十九日","expected"=>"2009/7/29"}
+    );
+
+    foreach my $d (@japy) {
+        is(&conv2seireki($d->{test}),$d->{expected},encode("utf-8",$d->{test}));
     }
 
 } else {
@@ -45,6 +57,10 @@ sub mymain() {
     foreach my $d (@data) {
     
         $tmp = $d;
+        if( $tmp =~ /([〇一二三四五六七八九十百]+)年間/) {
+            my $year = &conv2number($1);
+            $tmp =~ s/([〇一二三四五六七八九十百]+)年間/${year}年間/;
+        }
         while($tmp =~ /[〇一二三四五六七八九十百]+[条|項|号|月|年|日]/) {
             $tmp = &conv2seireki($tmp);
             $tmp = &convRuleNumber($tmp);
@@ -107,14 +123,19 @@ sub conv2seireki {
     
     if($str =~ /(..)([〇一二三四五六七八九十]+)年([〇一二三四五六七八九十]+)月([〇一二三四五六七八九十]+)日/) {
          $type =  $1;
-         $year = &conv2number($2);
+         if($type ne "昭和" && $type ne "平成") {
+             $year = $1.$2;
+         } else {
+             $year = $2;
+         }
+         $year = &conv2number($year);
          $year = &convYear($type,$year);
          $month = &conv2number($3);
          $day = &conv2number($4);
-         if($type ne "昭和" && $type ne "平成") {
-            $str =~ s/[〇一二三四五六七八九十]+年[〇一二三四五六七八九十]+月[〇一二三四五六七八九十]+日/${year}\/${month}\/${day}/;
+         if($type eq "昭和" || $type eq "平成") {
+            $str =~ s/(..)[〇一二三四五六七八九十]+年[〇一二三四五六七八九十]+月[〇一二三四五六七八九十]+日/${year}\/${month}\/${day}/;
         } else {
-            $str =~ s/..[〇一二三四五六七八九十]+年[〇一二三四五六七八九十]+月[〇一二三四五六七八九十]+日/${year}\/${month}\/${day}/;
+            $str =~ s/[〇一二三四五六七八九十]+年[〇一二三四五六七八九十]+月[〇一二三四五六七八九十]+日/${year}\/${month}\/${day}/;
         }
         return($str);
 
@@ -129,13 +150,25 @@ sub conv2seireki {
 
     if($str =~ /(..)([〇一二三四五六七八九十]+)年/) {
         $type = $1;
-        $year = &conv2number($2);
-        $year = &convYear($type,$year);
         if($type ne "昭和" && $type ne "平成") {
-            $str =~ s/[〇一二三四五六七八九十]+年/${year}年/;
+            $year = $1.$2;
         } else {
-            $str =~ s/..[〇一二三四五六七八九十]+年/${year}年/;
+            $year = $2;
         }
+        $year = &conv2number($year);
+        $year = &convYear($type,$year);
+        if($type eq "昭和" || $type eq "平成") {
+            $str =~ s/(..)[〇一二三四五六七八九十]+年/${year}年/;
+        } else {
+            $str =~ s/[〇一二三四五六七八九十]+年/${year}年/;
+        }
+        return($str);
+    }
+
+    if($str =~ /([〇一二三四五六七八九十]+)年/) {
+        $year = &conv2number($1);
+        print($year,"\n");
+        $str =~ s/[〇一二三四五六七八九十]+年/${year}年/;
         return($str);
     }
 
@@ -163,6 +196,7 @@ sub convYear {
 
     } elsif($type eq "平成") {
        $year = $year + 1988;
+
     } 
 
     return($year);
@@ -172,6 +206,7 @@ sub convYear {
 sub conv2number {
     my $x = $_[0];
 
+    $x =~ s/\s//g;
     if($x !~ /^([〇一二三四五六七八九十百]+)$/){
         return(0);
     }
