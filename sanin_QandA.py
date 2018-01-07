@@ -8,6 +8,11 @@ import urllib
 from html.parser import HTMLParser
 from argparse import ArgumentParser
 from kokkailib import LogDone,UndoneList
+from pysummarization.nlpbase.auto_abstractor import AutoAbstractor
+from pysummarization.tokenizabledoc.mecab_tokenizer import MeCabTokenizer
+from pysummarization.abstractabledoc.top_n_rank_abstractor import TopNRankAbstractor
+import MeCab
+import CaboCha 
 
 class ParserTable(HTMLParser):
     def __init__(self):
@@ -94,6 +99,7 @@ dir_name = "sanin_downloads"
 # コマンドライン引数の設定 
 arg_parser = ArgumentParser()
 arg_parser.add_argument("--number", "-n", help="specify question number",type=int)
+arg_parser.add_argument("--summarize", "-sum", help="summarize specified question",type=int)
 arg_parser.add_argument("--list","-l", action="store_true", help="list all the quiestions")
 arg_parser.add_argument("--download", "-d", help="download q and a", type=int) 
 arg_parser.add_argument("--done_Q","-Q",help="input finised question")
@@ -116,7 +122,38 @@ if args.number:
         f.close()
         print(p_contents.data)
 
-if args.list:
+elif args.summarize:
+    
+    q = args.summarize - 1
+    if q >= 0 and q < parser.get_len():
+
+        f = requests.get(root_html + parser.get_slink(q))
+        f.encoding = "utf-8"
+        p_contents = ParserContents()
+        p_contents.feed(f.text)
+        p_contents.close()
+        f.close()
+
+        # Object of automatic summarization.
+        #auto_abstractor = AutoAbstractor()
+        # Set tokenizer for Japanese.
+        #auto_abstractor.tokenizable_doc = MeCabTokenizer()
+        # Set delimiter for making a list of sentence.
+        #auto_abstractor.delimiter_list = ["。", "\n","<br>"]
+        # Object of abstracting and filtering document.
+        #abstractable_doc = TopNRankAbstractor()
+        # Summarize document.
+        #result_dict = auto_abstractor.summarize(p_contents.data, abstractable_doc)
+        #m = MeCab.Tagger("-Ochasen")
+        # Output result.
+        #print(m.parse(p_contents.data))
+
+        c = CaboCha.Parser()
+        tree =  c.parse(p_contents.data)
+        size = tree.size()
+        print(tree.toString(2))
+
+elif args.list:
     i = 0
     for d in parser.data:
         print(d["title"])
